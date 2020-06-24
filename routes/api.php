@@ -2,17 +2,23 @@
 
 use Illuminate\Http\Request;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+
+Route::post('inicioSesion', ['uses' => 'LoginController@inicioSesion']);
+Route::post('getUser', ['uses' => 'LoginController@getUser']);
+Route::post('logout', ['uses' => 'LoginController@logout']);
+
+Route::group(['prefix'=>'usuarios'], function(){
+    Route::post('getMultiAllGenerico', ['uses'=>'UsuarioController@getMultiAllGenerico']);
+    Route::post('getAllGenerico/{clave}', ['uses'=>'UsuarioController@getAllGenerico']);
+    Route::post('getGenerico/{clave}', ['uses' => 'UsuarioController@getGenerico']);
+    Route::post('guardarGenerico/{clave}', ['uses' => 'UsuarioController@guardarGenerico']);
+    Route::post('eliminarGenerico/{clave}', ['uses' => 'UsuarioController@eliminarGenerico']);
+});
+
+Route::group(['prefix'=>'documentos'], function(){
+    Route::post('guardarFotoEmpleado', ['uses'=>'DocumentoController@guardarFotoEmpleado']);
+    Route::post('guardarCvEmpleado', ['uses'=>'DocumentoController@guardarCvEmpleado']);
+    Route::post('eliminarDocumento', ['uses'=>'DocumentoController@eliminarDocumento']);
+    Route::get('descargarDocumento/{adjunto_id}', ['uses'=>'DocumentoController@descargarDocumento']);
 });
