@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Helpers\FilesHelper;
 use App\Models\Documento;
 use Illuminate\Http\Request;
+use Storage;
+use Exception;
+use Log;
 use Illuminate\Http\Response as HttpResponse;
 
 class DocumentoController extends Controller
@@ -12,7 +15,7 @@ class DocumentoController extends Controller
 
     public function guardarCvEmpleado() {
         try {
-            $this->guardarDocumentos('CVEM');
+            $this->guardarDocumentos('CVEM',request()->get('usuario_id'));
             return parent::returnJsonSuccess(['result' => 'ok']);
         } catch (Exception $ex) {
             return parent::returnJsonError($ex);
@@ -21,39 +24,37 @@ class DocumentoController extends Controller
 
     public function guardarFotoEmpleado() {
         try {
-            $this->guardarDocumentos('FOEM');
+            $this->guardarDocumentos('FOEM', request()->get('usuario_id'));
             return parent::returnJsonSuccess(['result' => 'ok']);
         } catch (Exception $ex) {
             return parent::returnJsonError($ex);
         }
     }
 
-    public function guardarDocumentos($tipo, $data = null) {
+    public function guardarDocumentos($tipo,  $usuario_id) {
         foreach (count(request()->file('documentos')) > 0 ? request()->file('documentos') : [] as $indice => $documento) {
             if (get_class($documento) == 'Illuminate\Http\UploadedFile') {
-                $nombre_tmp = last(explode('/', last(explode('\\', $documento->path()))));
                 $nuevo_nombre = "$tipo-" . substr($documento->getClientOriginalName(), -50);
+                \Storage::disk('local')->put($nuevo_nombre,  \File::get($documento));
                 $documento = Documento::guardarDocumento([
                     'nombre' => $nuevo_nombre,
                     'url' => $nuevo_nombre,
                     'tipo' => $tipo,
                     'usuario_id' => $usuario_id
                 ]);
-                FilesHelper::copiarArchivoFromLocalToCloud([
-                    'nombre_actual' => $nombre_tmp,
-                    'nombre_nuevo' => $documento->id . "-" . $nuevo_nombre
-                ]);
+
             } else {
                 Log::warning("El archivo no es del tipo UploadedFile");
             }
         }
     }
 
-    public function descargar($documento_id) {
+    public function descargarDocumento($documento_id)
+    {
         $documento = Documento::find($documento_id);
-        if (isset($documento->id) && FilesHelper::existeArchivo($documento->id . "-" . $documento->url, 'drobo')) {
-            $fs = Storage::disk('drobo')->getDriver();
-            $file = config('gelita.path_almacenamiento') . '/' . $documento->id . "-" . $documento->url;
+        if (isset($documento->id)) {
+            $fs = Storage::disk('local')->getDriver();
+            $file =  $documento->url;
             $stream = $fs->readStream($file);
             return response()->stream(function () use ($stream) {
                 fpassthru($stream);
@@ -65,4 +66,16 @@ class DocumentoController extends Controller
         } else {
             throw new Exception(trans('excepciones.archivoNoEncontrado', ['ruta' => $documento->url]));
         }
+    }
+
+    public function eliminarDocumento()
+    {
+        $documento = Documento::find(request()->get('documento_id'));
+        if (isset($documento->id)) {
+            FilesHelper::eliminarArchivo($documento->url);
+           $documento->delete();
+        } else {
+            throw new Exception(trans('excepciones.archivoNoEncontrado', ['ruta' => $documento->url]));
+        }
+    }
 }

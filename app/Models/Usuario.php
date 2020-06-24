@@ -16,6 +16,13 @@ class Usuario extends Model
     public function rol() {
         return $this->belongsTo('App\Models\Rol', 'rol_id');
     }
+    public function documento_foto() {
+        return $this->hasOne('App\Models\Documento', 'usuario_id')->where('tipo', 'FOEM');
+    }
+
+    public function cv() {
+        return $this->hasOne('App\Models\Documento', 'usuario_id')->where('tipo', 'CVEM');
+    }
     //|------Relaciones------|//
     //|------Scopes----------|//
     //|------Funciones de la clase------|//

@@ -15,7 +15,7 @@ class FilesHelper {
     /**
      * Almacena texto en el archivo solicitado
      * @param array $arr_info Propiedades buscadas ['texto', 'nombre_archivo']
-     * @return boolean si fue exitoso 
+     * @return boolean si fue exitoso
      */
     public static function guardarTexto($arr_info) {
         ExcepcionesHelper::validaPropiedades($arr_info, ['texto', 'nombre_archivo']);
@@ -28,14 +28,6 @@ class FilesHelper {
      * @return boolean si fue exitoso
      * @throws Exception Si no encuentra el archivo solicitado
      */
-    public static function copiarArchivoFromLocalToCloud($info) {
-        ExcepcionesHelper::validaPropiedades($info, ['nombre_actual', 'nombre_nuevo']);
-        if (!Storage::disk('tmp')->exists($info['nombre_actual'])) {
-            throw new Exception(trans('excepciones.archivoNoEncontrado', ['ruta'=>$info['nombre_actual']]));
-        }
-        $contenido_local = Storage::disk('tmp')->get($info['nombre_actual']);
-        return Storage::disk('drobo')->put(config('gelita.path_almacenamiento') . '/' . $info['nombre_nuevo'], $contenido_local);
-    }
 
     /**
      * Obtiene el texto del nombre de archivo solicitado
@@ -45,11 +37,11 @@ class FilesHelper {
      * Se desarrollará un sistema de indicadores visuales para los KPI's definido
      */
     public static function getTextoDeArchivo($nombre) {
-        $path = config('gelita.path_almacenamiento') . '/' . $nombre;
-        if (!Storage::disk('drobo')->exists($path)) {
+        $path =  '/' . $nombre;
+        if (!Storage::disk('local')->exists($path)) {
             throw new Exception(trans('excepciones.archivoNoEncontrado', ['ruta' => $path]));
         }
-        return Storage::disk('drobo')->get($path);
+        return Storage::disk('local')->get($path);
     }
 
     /**
@@ -59,22 +51,21 @@ class FilesHelper {
      * @throws Exception si no encuentra el archivo
      */
     public static function eliminarArchivo($nombre) {
-        $path = config('gelita.path_almacenamiento') . '/' . $nombre;
-        if (!Storage::disk('drobo')->exists($path)) {
+        $path =  '/' . $nombre;
+        if (!Storage::disk('local')->exists($path)) {
             throw new Exception(trans('excepciones.archivoNoEncontrado'));
         }
-        return Storage::disk('drobo')->delete($path);
+        return Storage::disk('local')->delete($path);
     }
 
     /**
      * Valida si existe un archivo en alguno de los filesystems
-     * @param string $path 
+     * @param string $path
      * @param string $nombre_disk default = local, puede ser drobo o algun otro
      * @return type
      */
-    public static function existeArchivo($path, $nombre_disk = "local") {
-        $path_real = $nombre_disk == "drobo" ? config('gelita.path_almacenamiento') . '/' . $path : $path;
-        return Storage::disk($nombre_disk)->exists($path_real);
+    public static function existeArchivo($path) {
+        return Storage::disk($nombre_disk)->exists($path);
     }
 
 }
