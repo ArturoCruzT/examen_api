@@ -16,7 +16,7 @@ class Documento extends Model
     //|------Scopes----------|//
     //|------Funciones de la clase------|//
     //|------Funciones estaticas------|//
-    public static function guardarAdjunto($arrInfo) {
+    public static function guardarDocumento($arrInfo) {
         $cat = isset($arrInfo['id']) ? self::find($arrInfo['id']) : new self();
         $info_guardar = ModelsHelper::preparaParaGuardar($arrInfo, []);
         $cat->fill($info_guardar);
