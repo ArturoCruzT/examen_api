@@ -9,8 +9,8 @@ use Log;
 
 class Usuario extends Model
 {
-    public $table = 'usuario';
-    public $fillable = ['nombre','apellidos','correo','fecha_registro','password','nombre_usuario', 'rol_id'];
+    public $table = 'users';
+    public $fillable = ['nombre','apellidos','email','fecha_registro','password','nombre_usuario', 'rol_id'];
 
     //|------Attributes------|//
     public function rol() {

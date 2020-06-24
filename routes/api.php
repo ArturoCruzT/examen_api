@@ -2,6 +2,12 @@
 
 use Illuminate\Http\Request;
 
+
+
+Route::post('inicioSesion', ['uses' => 'LoginController@inicioSesion']);
+Route::post('getUser', ['uses' => 'LoginController@getUser']);
+Route::post('logout', ['uses' => 'LoginController@logout']);
+
 Route::group(['prefix'=>'usuarios'], function(){
     Route::post('getMultiAllGenerico', ['uses'=>'UsuarioController@getMultiAllGenerico']);
     Route::post('getAllGenerico/{clave}', ['uses'=>'UsuarioController@getAllGenerico']);

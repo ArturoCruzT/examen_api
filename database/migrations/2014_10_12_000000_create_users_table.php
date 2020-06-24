@@ -20,11 +20,11 @@ class CreateUsersTable extends Migration
             $table->boolean('activo')->default(true);
             $table->timestamps();
         });
-        Schema::create('usuario', function (Blueprint $table) {
+        Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('nombre', 50);
             $table->string('apellidos', 50);
-            $table->string('correo')->unique();
+            $table->string('email')->unique();
             $table->date('fecha_registro');
             $table->string('password');
             $table->string('nombre_usuario');
@@ -35,7 +35,7 @@ class CreateUsersTable extends Migration
         Schema::create('documento', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->integer('usuario_id')->unsigned();
-            $table->foreign('usuario_id')->references('id')->on('usuario');
+            $table->foreign('usuario_id')->references('id')->on('users');
             $table->string('nombre', 50);
             $table->string('url', 100);
             $table->string('tipo', 4);
